@@ -1,29 +1,49 @@
 ﻿namespace Uno
 {
     using System;
+    using System.Collections.Generic;
 
-    public class UnoGame
+    public class UnoClientGame
     {
-        public UnoPlayer[] Players { get; }
+        public ClosedPlayer[] Opponents { get; }
+        public OpenPlayer Me { get; set; }
     }
 
-    public class UnoPlayer
+    public class UnoServerGame
     {
+        public OpenPlayer[] Players { get; }
+
+        public List<ICard> Cards { get; }
+
+    }
+
+    public class Player
+    {
+        public Guid Guid { get; }
         public string Name { get; }
+
+        public Player(Guid guid, string name)
+        {
+            Guid = guid;
+            Name = name;
+        }
+    }
+
+    public class ClosedPlayer : Player
+    {
         public int CardCount { get; set; }
 
-        public UnoPlayer(string name, int cardCount)
+        public ClosedPlayer(Guid guid, string name, int cardCount) : base(guid, name)
         {
-            Name = name;
             CardCount = cardCount;
         }
     }
 
-    public class OpenUnoPlayer : UnoPlayer
+    public class OpenPlayer : Player
     {
-        public ICard[] Cards { get; }
+        public List<ICard> Cards { get; }
 
-        public OpenUnoPlayer(string name, int cardCount, ICard[] cards) : base(name, cardCount)
+        public OpenPlayer(Guid guid, string name, List<ICard> cards) : base(guid, name)
         {
             Cards = cards;
         }
@@ -48,7 +68,8 @@
 
     public interface ICardAction
     {
-        void ActOn(UnoGame game);
+        Dictionary<ICard, Player> CardMovement { get; }
+        bool ActImmediately { get; }
     }
 
     public class NumberCard : IColoredCard
@@ -63,7 +84,7 @@
             : card.Matches(this);
     }
 
-    public class BlackCard : ICard
+    public class BlackCard : IActionCard
     {
         public BlackCardType CardType { get; }
 
@@ -72,10 +93,19 @@
         public bool Matches(ICard card) => true;
     }
 
+    public readonly struct DrawAction : ICardAction
+    {
+        public readonly int Amount;
+
+        public DrawAction(int amount) => Amount = amount;
+
+        public bool ActImmediately => false;
+    }
+
     public enum BlackCardType
     {
-        ChooseColor,
-        ChooseColorDrawFour,
+        None,
+        DrawFour,
     }
 
     public enum CardColor
