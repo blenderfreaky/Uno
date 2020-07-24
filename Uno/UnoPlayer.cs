@@ -63,7 +63,7 @@
             : card.Matches(this);
     }
 
-    public class BlackCard : ICardAction
+    public class BlackCard : ICard
     {
         public BlackCardType CardType { get; }
 
