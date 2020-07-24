@@ -56,17 +56,18 @@
         public int Number { get; }
         public CardColor Color { get; }
 
-        public string DisplayName { get; }
+        public string DisplayName => $"{Color} {Number}";
 
         public bool Matches(ICard card) => card is NumberCard numberCard
             ? Number == numberCard.Number || Color == numberCard.Color
             : card.Matches(this);
     }
 
-    public class BlackCard : ICard
+    public class BlackCard : ICardAction
     {
-        public BlackCardType Type { get; }
-        public string DisplayName { get; }
+        public BlackCardType CardType { get; }
+
+        public string DisplayName => $"{CardType}";
 
         public bool Matches(ICard card) => true;
     }
